@@ -267,7 +267,7 @@
     try {
       // 1. Subir comprobante a Storage
       const ext = archivoFile.name.split('.').pop();
-      const path = `comprobantes/${Date.now()}_${nombre.replace(/\s/g,'_')}.${ext}`;
+      const path = `${Date.now()}_${nombre.replace(/\s/g,'_')}.${ext}`;
       const { error: upErr } = await db.storage.from('comprobantes').upload(path, archivoFile);
       if (upErr) throw upErr;
 

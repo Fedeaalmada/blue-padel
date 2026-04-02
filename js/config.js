@@ -7,7 +7,7 @@ const CONFIG = {
   nombre: "Luna Asua Centro Sport",
   direccion: "Cjal. C. Bossi 504, Alta Gracia, Córdoba",
   telefono: "03547465714",
-  whatsapp: "5493547465714",      // 549 + número sin 0 adelante
+  whatsapp: "5493547500750",      // 549 + número sin 0 adelante
 
   // Pago de seña
   alias: "LUNA.ASUA.MP",
