@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Luna Asua Centro Sport</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .hero {
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 75% 50%, rgba(163,230,53,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(163,230,53,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(163,230,53,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(163,230,53,0.1);
+      border: 1px solid rgba(163,230,53,0.25);
+      color: var(--verde);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 100px;
+      margin-bottom: 1.5rem; width: fit-content;
+    }
+    .pulse { width:6px; height:6px; background:var(--verde); border-radius:50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 10vw, 7rem);
+      line-height: 0.95; letter-spacing: 0.01em;
+      margin-bottom: 1rem; position: relative; z-index:1;
+    }
+    .hero h1 span { color: var(--verde); }
+    .hero p { font-size: 1rem; color: var(--text2); max-width: 420px; margin-bottom: 2rem; font-weight: 300; position:relative; z-index:1; }
+    .hero-btns { display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:1; }
+
+    .stats-bar {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-around;
+    }
+    .stat { text-align:center; }
+    .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--verde); line-height:1; }
+    .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
+
+    .sports-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1px; background:var(--border); border-radius:12px; overflow:hidden; }
+    .sport-card { background:var(--bg2); padding:2rem; transition:background 0.2s; cursor:pointer; }
+    .sport-card:hover { background:var(--bg3); }
+    .sport-emoji { font-size:2.5rem; margin-bottom:1rem; display:block; }
+    .sport-name { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:0.02em; }
+    .sport-desc { font-size:13px; color:var(--muted); margin:0.5rem 0 1rem; }
+    .sport-price-val { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:var(--verde); }
+    .sport-price-unit { font-size:12px; color:var(--muted); }
+    .features { margin-top:1rem; display:flex; flex-direction:column; gap:5px; }
+    .feat { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+    .feat::before { content:''; width:4px; height:4px; background:var(--verde); border-radius:50%; flex-shrink:0; }
+
+    .steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.5rem; }
+    .step-num { font-family:'Bebas Neue',sans-serif; font-size:4rem; color:rgba(163,230,53,0.12); line-height:1; margin-bottom:-0.5rem; }
+    .step-title { font-size:15px; font-weight:600; margin-bottom:0.3rem; }
+    .step-desc { font-size:13px; color:var(--muted); }
+
+    .contact-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:2.5rem 2rem; display:flex; flex-direction:column; gap:1.25rem; }
+    .contact-row { display:flex; align-items:flex-start; gap:1rem; }
+    .contact-icon { width:36px; height:36px; background:rgba(163,230,53,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+    .contact-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
+    .contact-val { font-size:14px; }
+    .whatsapp-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      background:#25d366; color:#fff; font-weight:600; font-size:14px;
+      padding:13px 24px; border-radius:8px; border:none; cursor:pointer;
+      transition:opacity 0.2s; margin-top:0.5rem; text-decoration:none;
+    }
+    .whatsapp-btn:hover { opacity:0.88; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand" id="nav-brand">CARGANDO...</div>
+  <a href="reservar.html" class="btn btn-primary">Reservar ahora</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-badge"><span class="pulse"></span>Abierto las 24 hs</div>
+  <h1>RESERVÁ<br>TU <span>CANCHA</span><br>HOY</h1>
+  <p>Asegurá tu turno en segundos. Sin llamadas, sin esperas.</p>
+  <div class="hero-btns">
+    <a href="reservar.html" class="btn btn-primary">Reservar ahora</a>
+    <a id="btn-mapa" href="#" class="btn btn-ghost" target="_blank">Cómo llegar</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num" id="stat-deportes">—</div><div class="stat-label">Deportes</div></div>
+  <div class="stat"><div class="stat-num">24HS</div><div class="stat-label">Disponible</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Online</div></div>
+  <div class="stat"><div class="stat-num">AG</div><div class="stat-label">Alta Gracia</div></div>
+</div>
+
+<!-- DEPORTES -->
+<section class="section">
+  <div class="section-label">Instalaciones</div>
+  <div class="section-title">Elegí tu deporte</div>
+  <div class="sports-grid" id="sports-grid"></div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="section" style="background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-label">Proceso</div>
+  <div class="section-title">Cómo funciona</div>
+  <div class="steps-grid">
+    <div>
+      <div class="step-num">01</div>
+      <div class="step-title">Elegís deporte y horario</div>
+      <div class="step-desc">Seleccionás el deporte, la fecha y el turno disponible</div>
+    </div>
+    <div>
+      <div class="step-num">02</div>
+      <div class="step-title">Pagás la seña</div>
+      <div class="step-desc">Transferís el monto de seña al alias y subís el comprobante</div>
+    </div>
+    <div>
+      <div class="step-num">03</div>
+      <div class="step-title">Esperás confirmación</div>
+      <div class="step-desc">El complejo verifica el pago y te confirma por WhatsApp</div>
+    </div>
+    <div>
+      <div class="step-num">04</div>
+      <div class="step-title">A jugar</div>
+      <div class="step-desc">Te presentás en el predio a tu horario confirmado</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="section">
+  <div class="section-label">Contacto</div>
+  <div class="section-title">Encontranos</div>
+  <div class="contact-card">
+    <div class="contact-row">
+      <div class="contact-icon">📍</div>
+      <div><div class="contact-lbl">Dirección</div><div class="contact-val" id="dir">—</div></div>
+    </div>
+    <div class="contact-row">
+      <div class="contact-icon">⏰</div>
+      <div><div class="contact-lbl">Horario</div><div class="contact-val">Abierto las 24 horas, todos los días</div></div>
+    </div>
+    <div class="contact-row">
+      <div class="contact-icon">📞</div>
+      <div><div class="contact-lbl">Teléfono</div><div class="contact-val" id="tel">—</div></div>
+    </div>
+    <a id="btn-whatsapp" href="#" class="whatsapp-btn" target="_blank">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Consultar por WhatsApp
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="nav-brand" id="footer-brand">—</div>
+  <div id="footer-dir">—</div>
+</footer>
+
+<script src="js/config.js"></script>
+<script>
+  // Poblar con config
+  document.getElementById('nav-brand').innerHTML = CONFIG.nombre.split(' ').slice(0,2).join(' ').toUpperCase();
+  document.getElementById('footer-brand').innerHTML = CONFIG.nombre.toUpperCase();
+  document.getElementById('footer-dir').textContent = CONFIG.direccion + ' · ' + CONFIG.telefono;
+  document.getElementById('dir').textContent = CONFIG.direccion;
+  document.getElementById('tel').textContent = CONFIG.telefono;
+  document.getElementById('stat-deportes').textContent = CONFIG.deportes.length;
+  document.getElementById('btn-mapa').href = CONFIG.mapsUrl;
+  document.getElementById('btn-whatsapp').href = `https://wa.me/${CONFIG.whatsapp}`;
+
+  // Deportes
+  const grid = document.getElementById('sports-grid');
+  CONFIG.deportes.forEach(d => {
+    grid.innerHTML += `
+      <div class="sport-card" onclick="location.href='reservar.html?deporte=${d.id}'">
+        <span class="sport-emoji">${d.emoji}</span>
+        <div class="sport-name">${d.nombre}</div>
+        <div class="sport-desc">${d.descripcion}</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-top:.5rem">
+          <span class="sport-price-val">$${d.precio.toLocaleString('es-AR')}</span>
+          <span class="sport-price-unit">/hora</span>
+        </div>
+        <div class="features">${d.caracteristicas.map(c=>`<div class="feat">${c}</div>`).join('')}</div>
+      </div>`;
+  });
+</script>
+</body>
+</html>
