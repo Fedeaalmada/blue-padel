@@ -345,7 +345,7 @@
     toast('Turno confirmado ✓', 'ok');
 
     // Abrir WhatsApp automáticamente
-    setTimeout(() => window.open(waUrl, '_blank'), 500);
+   window.location.href = waUrl;
   }
 
   async function cancelarTurno() {
