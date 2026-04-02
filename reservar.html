@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reservar — Luna Asua</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .reserva-wrap { max-width: 540px; margin: 0 auto; padding: 3rem 1.5rem; }
+    .steps-indicator { display:flex; gap:8px; margin-bottom:2rem; }
+    .step-dot { flex:1; height:3px; background:var(--border2); border-radius:2px; transition:background .3s; }
+    .step-dot.active { background:var(--verde); }
+
+    .step-panel { display:none; }
+    .step-panel.visible { display:block; }
+
+    .sport-selector { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .sport-opt {
+      border:1px solid var(--border2); border-radius:10px; padding:1.25rem;
+      cursor:pointer; transition:all .2s; background:var(--bg2); text-align:center;
+    }
+    .sport-opt:hover { border-color:var(--verde); background:var(--bg3); }
+    .sport-opt.selected { border-color:var(--verde); background:rgba(163,230,53,0.07); }
+    .sport-opt-emoji { font-size:2rem; display:block; margin-bottom:6px; }
+    .sport-opt-name { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; }
+    .sport-opt-price { font-size:12px; color:var(--muted); }
+
+    .horarios-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:8px; }
+    .horario-btn {
+      padding:9px 4px; border:1px solid var(--border2); border-radius:7px;
+      background:var(--bg2); color:var(--text); font-size:13px; cursor:pointer;
+      text-align:center; transition:all .18s;
+    }
+    .horario-btn:hover:not(.ocupado) { border-color:var(--verde); }
+    .horario-btn.selected { border-color:var(--verde); background:rgba(163,230,53,0.1); color:var(--verde); font-weight:600; }
+    .horario-btn.ocupado { opacity:.35; cursor:not-allowed; text-decoration:line-through; }
+
+    .upload-area {
+      border:2px dashed var(--border2); border-radius:10px; padding:2rem;
+      text-align:center; cursor:pointer; transition:border-color .2s;
+    }
+    .upload-area:hover { border-color:var(--verde); }
+    .upload-area input { display:none; }
+    .upload-preview { margin-top:1rem; }
+    .upload-preview img { max-width:100%; border-radius:8px; border:1px solid var(--border2); }
+
+    .sena-box {
+      background:var(--bg3); border:1px solid var(--border2);
+      border-radius:10px; padding:1.25rem; margin-bottom:1.5rem;
+    }
+    .sena-titulo { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.5rem; }
+    .sena-monto { font-family:'Bebas Neue',sans-serif; font-size:2.5rem; color:var(--verde); line-height:1; }
+    .sena-alias { font-size:1rem; font-weight:600; margin:.4rem 0; }
+    .sena-cbu { font-size:12px; color:var(--muted); }
+
+    .resumen-box { background:var(--bg3); border-radius:10px; padding:1.25rem; margin-bottom:1.5rem; }
+    .resumen-row { display:flex; justify-content:space-between; padding:5px 0; font-size:14px; }
+    .resumen-row:not(:last-child) { border-bottom:1px solid var(--border); }
+    .resumen-lbl { color:var(--muted); }
+    .resumen-val { font-weight:500; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand" id="nav-brand">←</a>
+  <span style="font-size:13px; color:var(--muted);">Nueva reserva</span>
+</nav>
+
+<div class="reserva-wrap">
+  <div class="steps-indicator">
+    <div class="step-dot active" id="dot-1"></div>
+    <div class="step-dot" id="dot-2"></div>
+    <div class="step-dot" id="dot-3"></div>
+    <div class="step-dot" id="dot-4"></div>
+  </div>
+
+  <!-- PASO 1: DEPORTE -->
+  <div class="step-panel visible" id="step-1">
+    <div class="section-label">Paso 1 de 4</div>
+    <div class="section-title" style="margin-bottom:1.5rem">Elegí el deporte</div>
+    <div class="sport-selector" id="sport-selector"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:1.5rem" id="btn-next-1" disabled>Continuar →</button>
+  </div>
+
+  <!-- PASO 2: FECHA Y HORARIO -->
+  <div class="step-panel" id="step-2">
+    <div class="section-label">Paso 2 de 4</div>
+    <div class="section-title" style="margin-bottom:1.5rem">Fecha y horario</div>
+    <div class="field">
+      <label>Fecha</label>
+      <input type="date" id="input-fecha" min=""/>
+    </div>
+    <div class="field">
+      <label>Horario disponible</label>
+      <div class="horarios-grid" id="horarios-grid"><p style="color:var(--muted);font-size:13px;">Seleccioná una fecha primero</p></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1.5rem">
+      <button class="btn btn-ghost" onclick="goStep(1)">← Atrás</button>
+      <button class="btn btn-primary" style="flex:1" id="btn-next-2" disabled>Continuar →</button>
+    </div>
+  </div>
+
+  <!-- PASO 3: DATOS + COMPROBANTE -->
+  <div class="step-panel" id="step-3">
+    <div class="section-label">Paso 3 de 4</div>
+    <div class="section-title" style="margin-bottom:1.5rem">Tus datos y seña</div>
+
+    <div class="sena-box">
+      <div class="sena-titulo">Monto de seña</div>
+      <div class="sena-monto" id="sena-monto">$0</div>
+      <div class="sena-alias" id="sena-alias">—</div>
+      <div class="sena-cbu" id="sena-cbu">—</div>
+    </div>
+
+    <div class="field">
+      <label>Tu nombre completo</label>
+      <input type="text" id="input-nombre" placeholder="Juan Pérez"/>
+    </div>
+    <div class="field">
+      <label>Tu WhatsApp (con código de área)</label>
+      <input type="tel" id="input-tel" placeholder="3547 123456"/>
+    </div>
+    <div class="field">
+      <label>Comprobante de pago</label>
+      <div class="upload-area" onclick="document.getElementById('input-file').click()">
+        <div style="font-size:2rem">📎</div>
+        <p style="font-size:14px;color:var(--muted);margin-top:.5rem">Tocá para subir el comprobante</p>
+        <p style="font-size:12px;color:var(--muted);">JPG, PNG o PDF</p>
+        <input type="file" id="input-file" accept="image/*,application/pdf" onchange="previewFile(this)"/>
+      </div>
+      <div class="upload-preview" id="upload-preview"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="btn btn-ghost" onclick="goStep(2)">← Atrás</button>
+      <button class="btn btn-primary" style="flex:1" id="btn-next-3">Enviar reserva →</button>
+    </div>
+  </div>
+
+  <!-- PASO 4: CONFIRMACIÓN -->
+  <div class="step-panel" id="step-4">
+    <div style="text-align:center;padding:2rem 0">
+      <div style="font-size:4rem;margin-bottom:1rem">✅</div>
+      <div class="section-title">¡Reserva enviada!</div>
+      <p style="color:var(--muted);margin-bottom:2rem">Estamos verificando tu pago. Te vamos a confirmar el turno por WhatsApp en breve.</p>
+      <div class="resumen-box" id="resumen-final" style="text-align:left"></div>
+      <a href="index.html" class="btn btn-ghost" style="margin-top:1rem">Volver al inicio</a>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/supabase-client.js"></script>
+<script>
+  let selDeporte = null, selFecha = null, selHora = null, archivoFile = null;
+
+  // Fecha mínima = hoy
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('input-fecha').min = hoy;
+  document.getElementById('input-fecha').value = hoy;
+
+  // Nav brand
+  document.getElementById('nav-brand').innerHTML = '← ' + CONFIG.nombre.split(' ').slice(0,2).join(' ');
+
+  // Seña
+  document.getElementById('sena-monto').textContent = '$' + CONFIG.montoSena.toLocaleString('es-AR');
+  document.getElementById('sena-alias').textContent = 'Alias: ' + CONFIG.alias;
+  document.getElementById('sena-cbu').textContent = 'CBU: ' + CONFIG.cbu;
+
+  // Paso 1 — deportes
+  const sportSel = document.getElementById('sport-selector');
+  CONFIG.deportes.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'sport-opt';
+    el.innerHTML = `<span class="sport-opt-emoji">${d.emoji}</span><div class="sport-opt-name">${d.nombre}</div><div class="sport-opt-price">$${d.precio.toLocaleString('es-AR')}/h</div>`;
+    el.onclick = () => {
+      document.querySelectorAll('.sport-opt').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      selDeporte = d;
+      document.getElementById('btn-next-1').disabled = false;
+      // preselect deporte en url
+    };
+    sportSel.appendChild(el);
+  });
+
+  // Preselect desde URL
+  const params = new URLSearchParams(location.search);
+  const preDeporte = params.get('deporte');
+  if (preDeporte) {
+    const found = CONFIG.deportes.find(d => d.id === preDeporte);
+    if (found) {
+      sportSel.querySelectorAll('.sport-opt')[CONFIG.deportes.indexOf(found)].click();
+    }
+  }
+
+  document.getElementById('btn-next-1').onclick = () => goStep(2);
+
+  // Paso 2 — horarios
+  document.getElementById('input-fecha').onchange = async function() {
+    selFecha = this.value;
+    selHora = null;
+    document.getElementById('btn-next-2').disabled = true;
+    await renderHorarios();
+  };
+
+  async function renderHorarios() {
+    if (!selFecha || !selDeporte) return;
+    const grid = document.getElementById('horarios-grid');
+    grid.innerHTML = '<p style="color:var(--muted);font-size:13px;">Cargando...</p>';
+
+    // Traer reservas ocupadas
+    const { data } = await db.from('reservas')
+      .select('hora')
+      .eq('deporte', selDeporte.id)
+      .eq('fecha', selFecha)
+      .neq('estado', 'cancelada');
+
+    const ocupados = (data || []).map(r => r.hora.slice(0,5));
+    grid.innerHTML = '';
+    CONFIG.horarios.forEach(h => {
+      const btn = document.createElement('button');
+      btn.className = 'horario-btn' + (ocupados.includes(h) ? ' ocupado' : '');
+      btn.textContent = h;
+      if (!ocupados.includes(h)) {
+        btn.onclick = () => {
+          document.querySelectorAll('.horario-btn').forEach(x => x.classList.remove('selected'));
+          btn.classList.add('selected');
+          selHora = h;
+          document.getElementById('btn-next-2').disabled = false;
+        };
+      }
+      grid.appendChild(btn);
+    });
+  }
+
+  // Trigger horarios al entrar al paso 2
+  document.getElementById('btn-next-2').onclick = () => goStep(3);
+
+  // Paso 3 — subir comprobante
+  function previewFile(input) {
+    archivoFile = input.files[0];
+    const preview = document.getElementById('upload-preview');
+    if (!archivoFile) { preview.innerHTML = ''; return; }
+    if (archivoFile.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => { preview.innerHTML = `<img src="${e.target.result}" alt="comprobante"/>`; };
+      reader.readAsDataURL(archivoFile);
+    } else {
+      preview.innerHTML = `<p style="font-size:13px;color:var(--verde);margin-top:.5rem">✓ ${archivoFile.name}</p>`;
+    }
+  }
+
+  document.getElementById('btn-next-3').onclick = async () => {
+    const nombre = document.getElementById('input-nombre').value.trim();
+    const tel = document.getElementById('input-tel').value.trim();
+    if (!nombre || !tel) { toast('Completá nombre y teléfono', 'error'); return; }
+    if (!archivoFile) { toast('Subí el comprobante de pago', 'error'); return; }
+
+    const btn = document.getElementById('btn-next-3');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+
+    try {
+      // 1. Subir comprobante a Storage
+      const ext = archivoFile.name.split('.').pop();
+      const path = `${Date.now()}_${nombre.replace(/\s/g,'_')}.${ext}`;
+      const { error: upErr } = await db.storage.from('comprobantes').upload(path, archivoFile);
+      if (upErr) throw upErr;
+
+      // 2. Guardar reserva en DB
+      const { error: dbErr } = await db.from('reservas').insert({
+        nombre,
+        telefono: tel,
+        deporte: selDeporte.id,
+        fecha: selFecha,
+        hora: selHora,
+        comprobante_path: path,
+        estado: 'pendiente'
+      });
+      if (dbErr) throw dbErr;
+
+      // 3. Mostrar resumen
+      document.getElementById('resumen-final').innerHTML = `
+        <div class="resumen-row"><span class="resumen-lbl">Nombre</span><span class="resumen-val">${nombre}</span></div>
+        <div class="resumen-row"><span class="resumen-lbl">Deporte</span><span class="resumen-val">${selDeporte.nombre}</span></div>
+        <div class="resumen-row"><span class="resumen-lbl">Fecha</span><span class="resumen-val">${selFecha}</span></div>
+        <div class="resumen-row"><span class="resumen-lbl">Hora</span><span class="resumen-val">${selHora}</span></div>
+        <div class="resumen-row"><span class="resumen-lbl">Estado</span><span class="resumen-val"><span class="badge badge-pendiente">Pendiente</span></span></div>
+      `;
+      goStep(4);
+
+    } catch(e) {
+      toast('Error: ' + e.message, 'error');
+      btn.disabled = false; btn.textContent = 'Enviar reserva →';
+    }
+  };
+
+  // Navegación
+  function goStep(n) {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById(`step-${i}`).classList.toggle('visible', i === n);
+      document.getElementById(`dot-${i}`).classList.toggle('active', i <= n);
+    }
+    if (n === 2) {
+      selFecha = document.getElementById('input-fecha').value;
+      renderHorarios();
+    }
+    window.scrollTo(0,0);
+  }
+
+  // Toast
+  function toast(msg, type='ok') {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = `show ${type}`;
+    setTimeout(() => el.className = '', 3000);
+  }
+</script>
+</body>
+</html>

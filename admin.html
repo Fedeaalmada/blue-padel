@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Panel de reservas</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .admin-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* LOGIN */
+    .login-wrap { max-width:360px; margin:8vh auto; padding:1.5rem; }
+    .login-title { font-family:'Bebas Neue',sans-serif; font-size:2.5rem; margin-bottom:1.5rem; }
+
+    /* HEADER ADMIN */
+    .admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; flex-wrap:wrap; gap:1rem; }
+    .admin-title { font-family:'Bebas Neue',sans-serif; font-size:2rem; }
+
+    /* FILTROS */
+    .filtros { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1.5rem; align-items:center; }
+    .filtros input[type=date], .filtros select { width:auto; }
+
+    /* TABS */
+    .tabs { display:flex; gap:4px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:4px; margin-bottom:1.5rem; width:fit-content; }
+    .tab { padding:7px 16px; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; color:var(--muted); transition:all .15s; border:none; background:none; }
+    .tab.active { background:var(--bg3); color:var(--text); }
+
+    /* TABLA */
+    .tabla-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    thead th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:8px 12px; border-bottom:1px solid var(--border); font-weight:500; }
+    tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+    tbody tr:hover { background:var(--bg2); }
+    tbody td { padding:12px 12px; vertical-align:middle; }
+
+    /* MODAL COMPROBANTE */
+    .modal-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.8); z-index:200;
+      align-items:center; justify-content:center; padding:1rem;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--bg2); border:1px solid var(--border2);
+      border-radius:14px; padding:1.5rem; max-width:500px; width:100%;
+      max-height:90vh; overflow-y:auto;
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; }
+    .modal-title { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; }
+    .modal-close { background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer; line-height:1; }
+    .modal img { width:100%; border-radius:8px; border:1px solid var(--border2); margin:1rem 0; }
+    .modal-info { display:flex; flex-direction:column; gap:8px; margin-bottom:1.25rem; }
+    .modal-row { display:flex; justify-content:space-between; font-size:14px; }
+    .modal-lbl { color:var(--muted); }
+    .modal-val { font-weight:500; }
+    .modal-actions { display:flex; gap:8px; }
+
+    /* STATS TOP */
+    .stats-top { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:2rem; }
+    .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1rem; }
+    .stat-card-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--verde); line-height:1; }
+    .stat-card-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-top:2px; }
+
+    .empty { text-align:center; padding:3rem; color:var(--muted); font-size:14px; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <nav class="nav">
+    <div class="nav-brand">ADMIN</div>
+  </nav>
+  <div class="login-wrap">
+    <div class="login-title">Panel de<br>administración</div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="admin@ejemplo.com"/>
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••"/>
+    </div>
+    <button class="btn btn-primary" style="width:100%" id="btn-login">Ingresar</button>
+    <p id="login-error" style="color:var(--danger);font-size:13px;margin-top:.75rem;display:none"></p>
+  </div>
+</div>
+
+<!-- PANEL ADMIN -->
+<div id="admin-screen" style="display:none">
+  <nav class="nav">
+    <div class="nav-brand" id="admin-brand">ADMIN</div>
+    <button class="btn btn-ghost" style="font-size:13px" id="btn-logout">Salir</button>
+  </nav>
+
+  <div class="admin-wrap">
+
+    <div class="admin-header">
+      <div class="admin-title">Reservas</div>
+      <div class="filtros">
+        <input type="date" id="filtro-fecha" style="width:160px"/>
+        <select id="filtro-deporte" style="width:130px">
+          <option value="">Todos los deportes</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-top">
+      <div class="stat-card"><div class="stat-card-num" id="st-pendientes">0</div><div class="stat-card-lbl">Pendientes</div></div>
+      <div class="stat-card"><div class="stat-card-num" id="st-confirmadas">0</div><div class="stat-card-lbl">Confirmadas hoy</div></div>
+      <div class="stat-card"><div class="stat-card-num" id="st-total">0</div><div class="stat-card-lbl">Total hoy</div></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('pendiente', this)">Pendientes</button>
+      <button class="tab" onclick="setTab('confirmada', this)">Confirmadas</button>
+      <button class="tab" onclick="setTab('todas', this)">Todas</button>
+    </div>
+
+    <!-- TABLA -->
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Nombre</th>
+            <th>Deporte</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+      </table>
+      <div id="tabla-empty" class="empty" style="display:none">No hay reservas para mostrar</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Detalle de reserva</div>
+      <button class="modal-close" onclick="cerrarModal()">×</button>
+    </div>
+    <div class="modal-info" id="modal-info"></div>
+    <div id="modal-comprobante"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/supabase-client.js"></script>
+<script>
+  let tabActual = 'pendiente';
+  let reservaActual = null;
+
+  // Nav brand
+  document.getElementById('admin-brand').textContent = CONFIG.nombre.toUpperCase();
+
+  // Filtro fecha por defecto = hoy
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('filtro-fecha').value = hoy;
+
+  // Llenar select deportes
+  const selDep = document.getElementById('filtro-deporte');
+  CONFIG.deportes.forEach(d => {
+    const op = document.createElement('option');
+    op.value = d.id; op.textContent = d.nombre;
+    selDep.appendChild(op);
+  });
+
+  // LOGIN
+  document.getElementById('btn-login').onclick = async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    const btn = document.getElementById('btn-login');
+    btn.disabled = true; btn.textContent = 'Ingresando...';
+
+    const { error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+      document.getElementById('login-error').style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Ingresar';
+    } else {
+      mostrarAdmin();
+    }
+  };
+
+  document.getElementById('btn-logout').onclick = async () => {
+    await db.auth.signOut();
+    document.getElementById('admin-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'block';
+  };
+
+  // Verificar sesión activa al cargar
+  db.auth.getSession().then(({ data: { session } }) => {
+    if (session) mostrarAdmin();
+  });
+
+  function mostrarAdmin() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    cargarReservas();
+  }
+
+  // Cambio filtros
+  document.getElementById('filtro-fecha').onchange = cargarReservas;
+  document.getElementById('filtro-deporte').onchange = cargarReservas;
+
+  function setTab(tab, el) {
+    tabActual = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    cargarReservas();
+  }
+
+  async function cargarReservas() {
+    const fecha = document.getElementById('filtro-fecha').value;
+    const deporte = document.getElementById('filtro-deporte').value;
+
+    let query = db.from('reservas').select('*').eq('fecha', fecha).order('hora', { ascending: true });
+    if (deporte) query = query.eq('deporte', deporte);
+    if (tabActual !== 'todas') query = query.eq('estado', tabActual);
+
+    const { data, error } = await query;
+    if (error) { toast('Error cargando reservas', 'error'); return; }
+
+    // Stats
+    const { data: statsData } = await db.from('reservas').select('estado').eq('fecha', fecha);
+    const pendientes = (statsData||[]).filter(r=>r.estado==='pendiente').length;
+    const confirmadas = (statsData||[]).filter(r=>r.estado==='confirmada').length;
+    document.getElementById('st-pendientes').textContent = pendientes;
+    document.getElementById('st-confirmadas').textContent = confirmadas;
+    document.getElementById('st-total').textContent = (statsData||[]).length;
+
+    // Tabla
+    const tbody = document.getElementById('tabla-body');
+    const empty = document.getElementById('tabla-empty');
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = data.map(r => {
+      const dep = CONFIG.deportes.find(d => d.id === r.deporte);
+      return `
+        <tr>
+          <td><strong>${r.hora.slice(0,5)}</strong></td>
+          <td>${r.nombre}</td>
+          <td>${dep ? dep.emoji + ' ' + dep.nombre : r.deporte}</td>
+          <td style="color:var(--muted)">${r.telefono}</td>
+          <td><span class="badge badge-${r.estado}">${r.estado}</span></td>
+          <td>
+            <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="verDetalle('${r.id}')">Ver</button>
+          </td>
+        </tr>`;
+    }).join('');
+
+    // Guardar data para modal
+    window._reservasData = data;
+  }
+
+  async function verDetalle(id) {
+    const r = window._reservasData.find(x => x.id === id);
+    if (!r) return;
+    reservaActual = r;
+
+    const dep = CONFIG.deportes.find(d => d.id === r.deporte);
+
+    document.getElementById('modal-info').innerHTML = `
+      <div class="modal-row"><span class="modal-lbl">Nombre</span><span class="modal-val">${r.nombre}</span></div>
+      <div class="modal-row"><span class="modal-lbl">WhatsApp</span><span class="modal-val">${r.telefono}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Deporte</span><span class="modal-val">${dep ? dep.emoji+' '+dep.nombre : r.deporte}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Fecha</span><span class="modal-val">${r.fecha}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Hora</span><span class="modal-val">${r.hora.slice(0,5)}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Estado</span><span class="modal-val"><span class="badge badge-${r.estado}">${r.estado}</span></span></div>
+    `;
+
+    // Comprobante
+    const compWrap = document.getElementById('modal-comprobante');
+    if (r.comprobante_path) {
+      const { data } = db.storage.from('comprobantes').getPublicUrl(r.comprobante_path);
+      const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(r.comprobante_path);
+      compWrap.innerHTML = isImg
+        ? `<p style="font-size:12px;color:var(--muted);margin-bottom:.5rem">COMPROBANTE</p><img src="${data.publicUrl}" alt="comprobante"/>`
+        : `<a href="${data.publicUrl}" target="_blank" class="btn btn-ghost" style="font-size:13px">Ver comprobante PDF →</a>`;
+    } else {
+      compWrap.innerHTML = '<p style="color:var(--muted);font-size:13px">Sin comprobante adjunto</p>';
+    }
+
+    // Acciones
+    const actions = document.getElementById('modal-actions');
+    if (r.estado === 'pendiente') {
+      actions.innerHTML = `
+        <button class="btn btn-success" style="flex:1" onclick="confirmarTurno()">✓ Confirmar turno</button>
+        <button class="btn btn-danger" onclick="cancelarTurno()">Cancelar</button>
+      `;
+    } else {
+      actions.innerHTML = `<p style="font-size:13px;color:var(--muted)">Turno ya ${r.estado}</p>`;
+    }
+
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal').classList.remove('open');
+    reservaActual = null;
+  }
+
+  async function confirmarTurno() {
+    if (!reservaActual) return;
+    const btn = document.querySelector('.modal-actions .btn-success');
+    btn.disabled = true; btn.textContent = 'Confirmando...';
+
+    const { error } = await db.from('reservas')
+      .update({ estado: 'confirmada' })
+      .eq('id', reservaActual.id);
+
+    if (error) { toast('Error al confirmar', 'error'); btn.disabled = false; return; }
+
+    // Armar link de WhatsApp con mensaje automático
+    const nombre = reservaActual.nombre.split(' ')[0];
+    const dep = CONFIG.deportes.find(d => d.id === reservaActual.deporte);
+    const msg = CONFIG.mensajeConfirmacion
+      .replace('{nombre}', nombre)
+      .replace('{deporte}', dep ? dep.nombre : reservaActual.deporte)
+      .replace('{fecha}', reservaActual.fecha)
+      .replace('{hora}', reservaActual.hora.slice(0,5));
+
+    const tel = reservaActual.telefono.replace(/\D/g,'');
+    const waUrl = `https://wa.me/549${tel}?text=${encodeURIComponent(msg)}`;
+
+    cerrarModal();
+    cargarReservas();
+    toast('Turno confirmado ✓', 'ok');
+
+    // Abrir WhatsApp automáticamente
+    setTimeout(() => window.open(waUrl, '_blank'), 500);
+  }
+
+  async function cancelarTurno() {
+    if (!reservaActual) return;
+    if (!confirm('¿Cancelar este turno?')) return;
+
+    await db.from('reservas').update({ estado: 'cancelada' }).eq('id', reservaActual.id);
+    cerrarModal();
+    cargarReservas();
+    toast('Turno cancelado', 'ok');
+  }
+
+  // Cerrar modal al hacer click fuera
+  document.getElementById('modal').onclick = function(e) {
+    if (e.target === this) cerrarModal();
+  };
+
+  // Toast
+  function toast(msg, type='ok') {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = `show ${type}`;
+    setTimeout(() => el.className = '', 3000);
+  }
+</script>
+</body>
+</html>
