@@ -186,7 +186,11 @@
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) {
       document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+<<<<<<< HEAD
       document.getElementById('login-error' ).style.display = 'block';
+=======
+      document.getElementById('login-error').style.display = 'block';
+>>>>>>> c3951eeee89d88fcbae52120cdf694254e01d00d
       btn.disabled = false; btn.textContent = 'Ingresar';
     } else {
       mostrarAdmin();
@@ -301,6 +305,7 @@
     // Acciones
     const actions = document.getElementById('modal-actions');
     if (r.estado === 'pendiente') {
+<<<<<<< HEAD
       const dep = CONFIG.deportes.find(d => d.id === r.deporte);
 const nombre = r.nombre.split(' ')[0];
 const msg = CONFIG.mensajeConfirmacion
@@ -316,6 +321,12 @@ actions.innerHTML = `
   <a href="${waUrl}" target="_blank" class="btn" style="background:#25d366;color:#fff;flex:1;justify-content:center;">Enviar WhatsApp</a>
   <button class="btn btn-danger" onclick="cancelarTurno()">Cancelar</button>
 `;
+=======
+      actions.innerHTML = `
+        <button class="btn btn-success" style="flex:1" onclick="confirmarTurno()">✓ Confirmar turno</button>
+        <button class="btn btn-danger" onclick="cancelarTurno()">Cancelar</button>
+      `;
+>>>>>>> c3951eeee89d88fcbae52120cdf694254e01d00d
     } else {
       actions.innerHTML = `<p style="font-size:13px;color:var(--muted)">Turno ya ${r.estado}</p>`;
     }
@@ -351,6 +362,7 @@ actions.innerHTML = `
     const tel = reservaActual.telefono.replace(/\D/g,'');
     const waUrl = `https://wa.me/549${tel}?text=${encodeURIComponent(msg)}`;
 
+<<<<<<< HEAD
    cerrarModal();
 cargarReservas();
 toast('Turno confirmado ✓', 'ok');
@@ -363,6 +375,14 @@ div.innerHTML = `<a href="${waUrl}" target="_blank" style="display:flex;align-it
 </a>`;
 document.body.appendChild(div);
 setTimeout(() => div.remove(), 10000);
+=======
+    cerrarModal();
+    cargarReservas();
+    toast('Turno confirmado ✓', 'ok');
+
+    // Abrir WhatsApp automáticamente
+    setTimeout(() => window.open(waUrl, '_blank'), 500);
+>>>>>>> c3951eeee89d88fcbae52120cdf694254e01d00d
   }
 
   async function cancelarTurno() {
