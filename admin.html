@@ -186,7 +186,7 @@
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) {
       document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
-      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('login-error' ).style.display = 'block';
       btn.disabled = false; btn.textContent = 'Ingresar';
     } else {
       mostrarAdmin();
@@ -301,10 +301,21 @@
     // Acciones
     const actions = document.getElementById('modal-actions');
     if (r.estado === 'pendiente') {
-      actions.innerHTML = `
-        <button class="btn btn-success" style="flex:1" onclick="confirmarTurno()">✓ Confirmar turno</button>
-        <button class="btn btn-danger" onclick="cancelarTurno()">Cancelar</button>
-      `;
+      const dep = CONFIG.deportes.find(d => d.id === r.deporte);
+const nombre = r.nombre.split(' ')[0];
+const msg = CONFIG.mensajeConfirmacion
+  .replace('{nombre}', nombre)
+  .replace('{deporte}', dep ? dep.nombre : r.deporte)
+  .replace('{fecha}', r.fecha)
+  .replace('{hora}', r.hora.slice(0,5));
+const tel = r.telefono.replace(/\D/g,'');
+const waUrl = `https://wa.me/549${tel}?text=${encodeURIComponent(msg)}`;
+
+actions.innerHTML = `
+  <button class="btn btn-success" style="flex:1" onclick="confirmarTurno()">✓ Confirmar en sistema</button>
+  <a href="${waUrl}" target="_blank" class="btn" style="background:#25d366;color:#fff;flex:1;justify-content:center;">Enviar WhatsApp</a>
+  <button class="btn btn-danger" onclick="cancelarTurno()">Cancelar</button>
+`;
     } else {
       actions.innerHTML = `<p style="font-size:13px;color:var(--muted)">Turno ya ${r.estado}</p>`;
     }
@@ -340,12 +351,18 @@
     const tel = reservaActual.telefono.replace(/\D/g,'');
     const waUrl = `https://wa.me/549${tel}?text=${encodeURIComponent(msg)}`;
 
-    cerrarModal();
-    cargarReservas();
-    toast('Turno confirmado ✓', 'ok');
+   cerrarModal();
+cargarReservas();
+toast('Turno confirmado ✓', 'ok');
 
-    // Abrir WhatsApp automáticamente
-   window.location.href = waUrl;
+// Mostrar botón para abrir WhatsApp
+const div = document.createElement('div');
+div.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:999;';
+div.innerHTML = `<a href="${waUrl}" target="_blank" style="display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;font-weight:600;font-size:15px;padding:14px 28px;border-radius:50px;text-decoration:none;">
+  Enviar confirmación por WhatsApp
+</a>`;
+document.body.appendChild(div);
+setTimeout(() => div.remove(), 10000);
   }
 
   async function cancelarTurno() {
