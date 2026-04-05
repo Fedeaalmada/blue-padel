@@ -8,7 +8,7 @@ const CONFIG = {
   direccion: "Cjal. C. Bossi 504, Alta Gracia, Córdoba",
   telefono: "03547465714",
   whatsapp: "5493547500750",      // 549 + número sin 0 adelante
-whatsappAdmin: "5493547565132",   // número del dueño para recibir avisos
+
   // Pago de seña
   alias: "LUNA.ASUA.MP",
   cbu: "0000000000000000000000",
