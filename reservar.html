@@ -282,7 +282,10 @@
         estado: 'pendiente'
       });
       if (dbErr) throw dbErr;
-
+// Notificar al dueño
+const msgAdmin = `🔔 Nueva reserva!\n👤 Nombre: ${nombre}\n📱 WhatsApp: ${tel}\n🎾 Deporte: ${selDeporte.nombre}\n📅 Fecha: ${selFecha}\n⏰ Hora: ${selHora}\n\nEntrá al panel para verificar el comprobante.`;
+const waAdmin = `https://wa.me/${CONFIG.whatsappAdmin}?text=${encodeURIComponent(msgAdmin)}`;
+window.open(waAdmin, '_blank');
       // 3. Mostrar resumen
       document.getElementById('resumen-final').innerHTML = `
         <div class="resumen-row"><span class="resumen-lbl">Nombre</span><span class="resumen-val">${nombre}</span></div>

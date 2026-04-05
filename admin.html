@@ -154,7 +154,7 @@
 </div>
 
 <div id="toast"></div>
-
+<script src="js/env.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase-client.js"></script>
 <script>
@@ -178,8 +178,8 @@
 
   // LOGIN
  // Usuario y contraseña del admin — cambiá estos valores
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "gonzasanti123";
+const ADMIN_USER = ENV.ADMIN_USER;
+const ADMIN_PASS = ENV.ADMIN_PASS;
 
 document.getElementById('btn-login').onclick = () => {
     const user = document.getElementById('login-email').value.trim();
