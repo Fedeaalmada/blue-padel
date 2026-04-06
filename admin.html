@@ -185,7 +185,7 @@ document.getElementById('btn-login').onclick = () => {
     const user = document.getElementById('login-email').value.trim();
     const pass = document.getElementById('login-pass').value;
     if (user === ADMIN_USER && pass === ADMIN_PASS) {
-      sessionStorage.setItem('admin_auth', 'true');
+      localStorage.setItem('admin_auth', 'true');
       mostrarAdmin();
     } else {
       document.getElementById('login-error').textContent = 'Usuario o contraseña incorrectos';
@@ -194,13 +194,13 @@ document.getElementById('btn-login').onclick = () => {
   };
 
   document.getElementById('btn-logout').onclick = () => {
-   sessionStorage.removeItem('admin_auth');
+   localStorage.removeItem('admin_auth');
     document.getElementById('admin-screen').style.display = 'none';
     document.getElementById('login-screen').style.display = 'block';
   };
 
   // Verificar sesión activa al cargar
-  if (sessionStorage.getItem('admin_auth') === 'true') mostrarAdmin();
+  if (localStorage.getItem('admin_auth') === 'true') mostrarAdmin();
 
   function mostrarAdmin() {
     document.getElementById('login-screen').style.display = 'none';
