@@ -314,10 +314,13 @@ actions.innerHTML = `
   <a href="${waUrl}" target="_blank" class="btn" style="background:#25d366;color:#fff;flex:1;justify-content:center;">Enviar WhatsApp</a>
   <button class="btn btn-danger" onclick="cancelarTurno()">Cancelar</button>
 `;
-    } else {
-      actions.innerHTML = `<p style="font-size:13px;color:var(--muted)">Turno ya ${r.estado}</p>`;
-    }
-
+   } else if (r.estado === 'confirmada') {
+  actions.innerHTML = `
+    <button class="btn btn-danger" onclick="cancelarTurno()">Cancelar turno</button>
+  `;
+} else {
+  actions.innerHTML = `<p style="font-size:13px;color:var(--muted)">Turno ya ${r.estado}</p>`;
+}
     document.getElementById('modal').classList.add('open');
   }
 
