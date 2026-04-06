@@ -7,14 +7,12 @@ const CONFIG = {
   nombre: "Luna Asua Centro Sport",
   direccion: "Cjal. C. Bossi 504, Alta Gracia, Córdoba",
   telefono: "03547465714",
-  whatsapp: "5493547500750",      // 549 + número sin 0 adelante
+  whatsapp: "5493547465714",
 
-  // Pago de seña
   alias: "LUNA.ASUA.MP",
   cbu: "0000000000000000000000",
-  montoSena: 2000,                // en pesos
+  montoSena: 2000,
 
-  // Deportes
   deportes: [
     {
       id: "padel",
@@ -22,7 +20,8 @@ const CONFIG = {
       emoji: "🎾",
       descripcion: "Canchas blindex panorámicas con iluminación LED",
       precio: 30000,
-      caracteristicas: ["Iluminación incluida", "Alquiler de paletas", "Blindex panorámico"]
+      caracteristicas: ["Iluminación incluida", "Alquiler de paletas", "Blindex panorámico"],
+      canchas: ["Cancha 1", "Cancha 2"]
     },
     {
       id: "futbol",
@@ -30,11 +29,11 @@ const CONFIG = {
       emoji: "⚽",
       descripcion: "Césped sintético de última generación",
       precio: 112000,
-      caracteristicas: ["Iluminación incluida", "Pelotas disponibles", "Césped sintético"]
+      caracteristicas: ["Iluminación incluida", "Pelotas disponibles", "Césped sintético"],
+      canchas: ["Cancha 1", "Cancha 2"]
     }
   ],
 
-  // Horarios disponibles
   horarios: [
     "08:00","09:00","10:00","11:00","12:00","13:00",
     "14:00","15:00","16:00","17:00","18:00","19:00",
@@ -43,7 +42,5 @@ const CONFIG = {
 
   mapsUrl: "https://maps.app.goo.gl/wzFxwqLCJkePP8dd9",
 
-  // Mensaje automático al confirmar el turno
-  // Variables disponibles: {nombre}, {deporte}, {fecha}, {hora}
-  mensajeConfirmacion: "Hola {nombre}! 🎉 Te confirmamos tu turno en Luna Asua Centro Sport.\n\n Deporte: {deporte}\n Fecha: {fecha}\n Hora: {hora}\n\nTe esperamos! Cualquier consulta estamos acá."
+  mensajeConfirmacion: "Hola {nombre}! 🎉 Te confirmamos tu turno en Luna Asua Centro Sport.\n\n Deporte: {deporte}\n Cancha: {cancha}\n Fecha: {fecha}\n Hora: {hora}\n\nTe esperamos!"
 };
