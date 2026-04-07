@@ -6,61 +6,20 @@
   <title>Blue Padel — Alta Gracia</title>
   <link rel="stylesheet" href="css/style.css"/>
   <style>
-    .hero {
-      min-height: 92vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 4rem 2rem 3rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero-bg {
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 75% 50%, rgba(26,111,196,0.07) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .hero-grid {
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(26,111,196,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(26,111,196,0.04) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-    }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: rgba(26,111,196,0.1);
-      border: 1px solid rgba(26,111,196,0.25);
-      color: var(--verde);
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 5px 14px; border-radius: 100px;
-      margin-bottom: 1.5rem; width: fit-content;
-    }
+    .hero { min-height: 92vh; display: flex; flex-direction: column; justify-content: center; padding: 4rem 2rem 3rem; position: relative; overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 75% 50%, rgba(26,111,196,0.07) 0%, transparent 60%); pointer-events: none; }
+    .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(26,111,196,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(26,111,196,0.04) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(26,111,196,0.1); border: 1px solid rgba(26,111,196,0.25); color: var(--verde); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 14px; border-radius: 100px; margin-bottom: 1.5rem; width: fit-content; }
     .pulse { width:6px; height:6px; background:var(--verde); border-radius:50%; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-    .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3.5rem, 10vw, 7rem);
-      line-height: 0.95; letter-spacing: 0.01em;
-      margin-bottom: 1rem; position: relative; z-index:1;
-    }
+    .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3.5rem, 10vw, 7rem); line-height: 0.95; letter-spacing: 0.01em; margin-bottom: 1rem; position: relative; z-index:1; }
     .hero h1 span { color: var(--verde); }
     .hero p { font-size: 1rem; color: var(--text2); max-width: 420px; margin-bottom: 2rem; font-weight: 300; position:relative; z-index:1; }
     .hero-btns { display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:1; }
-
-    .stats-bar {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 1.25rem 2rem;
-      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-around;
-    }
+    .stats-bar { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.25rem 2rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-around; }
     .stat { text-align:center; }
     .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--verde); line-height:1; }
     .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
-
     .sports-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1px; background:var(--border); border-radius:12px; overflow:hidden; }
     .sport-card { background:var(--bg2); padding:2rem; transition:background 0.2s; cursor:pointer; }
     .sport-card:hover { background:var(--bg3); }
@@ -72,23 +31,16 @@
     .features { margin-top:1rem; display:flex; flex-direction:column; gap:5px; }
     .feat { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px; }
     .feat::before { content:''; width:4px; height:4px; background:var(--verde); border-radius:50%; flex-shrink:0; }
-
     .steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.5rem; }
     .step-num { font-family:'Bebas Neue',sans-serif; font-size:4rem; color:rgba(26,111,196,0.12); line-height:1; margin-bottom:-0.5rem; }
     .step-title { font-size:15px; font-weight:600; margin-bottom:0.3rem; }
     .step-desc { font-size:13px; color:var(--muted); }
-
     .contact-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:2.5rem 2rem; display:flex; flex-direction:column; gap:1.25rem; }
     .contact-row { display:flex; align-items:flex-start; gap:1rem; }
     .contact-icon { width:36px; height:36px; background:rgba(26,111,196,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
     .contact-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
     .contact-val { font-size:14px; }
-    .whatsapp-btn {
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      background:#25d366; color:#fff; font-weight:600; font-size:14px;
-      padding:13px 24px; border-radius:8px; border:none; cursor:pointer;
-      transition:opacity 0.2s; margin-top:0.5rem; text-decoration:none;
-    }
+    .whatsapp-btn { display:flex; align-items:center; justify-content:center; gap:8px; background:#25d366; color:#fff; font-weight:600; font-size:14px; padding:13px 24px; border-radius:8px; border:none; cursor:pointer; transition:opacity 0.2s; margin-top:0.5rem; text-decoration:none; }
     .whatsapp-btn:hover { opacity:0.88; }
   </style>
 </head>
@@ -109,7 +61,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
@@ -122,7 +73,6 @@
   </div>
 </section>
 
-<!-- STATS -->
 <div class="stats-bar">
   <div class="stat"><div class="stat-num">3</div><div class="stat-label">Canchas</div></div>
   <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Online</div></div>
@@ -130,79 +80,63 @@
   <div class="stat"><div class="stat-num">🎾</div><div class="stat-label">Pádel</div></div>
 </div>
 
-<!-- DEPORTES -->
 <section class="section">
   <div class="section-label">Canchas</div>
   <div class="section-title">Elegí tu <span>cancha</span></div>
   <div class="sports-grid" id="sports-grid"></div>
 </section>
 
-<!-- INSTALACIONES -->
 <section class="section" style="background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
   <div class="section-label">Instalaciones</div>
   <div class="section-title">Nuestras <span>instalaciones</span></div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="amenities-grid"></div>
 </section>
 
-<!-- CÓMO FUNCIONA -->
 <section class="section">
   <div class="section-label">Proceso</div>
   <div class="section-title">Cómo <span>funciona</span></div>
   <div class="steps-grid">
-    <div>
-      <div class="step-num">01</div>
-      <div class="step-title">Elegís la cancha</div>
-      <div class="step-desc">Seleccionás la cancha, fecha y horario disponible</div>
-    </div>
-    <div>
-      <div class="step-num">02</div>
-      <div class="step-title">Pagás la seña</div>
-      <div class="step-desc">Transferís al alias y subís el comprobante</div>
-    </div>
-    <div>
-      <div class="step-num">03</div>
-      <div class="step-title">Confirmación</div>
-      <div class="step-desc">El complejo verifica y te confirma por WhatsApp</div>
-    </div>
-    <div>
-      <div class="step-num">04</div>
-      <div class="step-title">A jugar</div>
-      <div class="step-desc">Te presentás en el predio a tu horario</div>
-    </div>
+    <div><div class="step-num">01</div><div class="step-title">Elegís la cancha</div><div class="step-desc">Seleccionás la cancha, fecha y horario disponible</div></div>
+    <div><div class="step-num">02</div><div class="step-title">Pagás la seña</div><div class="step-desc">Transferís al alias y subís el comprobante</div></div>
+    <div><div class="step-num">03</div><div class="step-title">Confirmación</div><div class="step-desc">El complejo verifica y te confirma por WhatsApp</div></div>
+    <div><div class="step-num">04</div><div class="step-title">A jugar</div><div class="step-desc">Te presentás en el predio a tu horario</div></div>
   </div>
 </section>
 
-<!-- RESEÑAS -->
-<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.25rem;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-    <div style="width:38px;height:38px;border-radius:50%;background:#ea4335;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;">E</div>
-    <div style="font-size:14px;font-weight:600;">Eduardo Rapetti</div>
+<section class="section" style="background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-label">Opiniones</div>
+  <div class="section-title">Lo que dicen <span>nuestros clientes</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem;">
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
+        <div style="width:38px;height:38px;border-radius:50%;background:#ea4335;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;">E</div>
+        <div style="font-size:14px;font-weight:600;">Eduardo Rapetti</div>
+      </div>
+      <div style="color:#f59e0b;font-size:14px;margin-bottom:6px;">★★★★★</div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;">Excelente atención del personal y las instalaciones muy buenas, los baños impecables, muy recomendable para ir.</p>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
+        <div style="width:38px;height:38px;border-radius:50%;background:#1a6fc4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;">A</div>
+        <div style="font-size:14px;font-weight:600;">Angel Vargas</div>
+      </div>
+      <div style="color:#f59e0b;font-size:14px;margin-bottom:6px;">★★★★★</div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;">Lindo lugar, excelentes canchas, muy buena atención, la gente que te encontrás muy agradable.</p>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.25rem;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
+        <div style="width:38px;height:38px;border-radius:50%;background:#34a853;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;">D</div>
+        <div style="font-size:14px;font-weight:600;">Diego Moreno</div>
+      </div>
+      <div style="color:#f59e0b;font-size:14px;margin-bottom:6px;">★★★★★</div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;">Muy lindo lugar, súper iluminado de noche, ambiente familiar y maravillosa atención en todo!!!</p>
+    </div>
   </div>
-  <div style="color:#f59e0b;font-size:14px;margin-bottom:6px;">★★★★★</div>
-  <p style="font-size:13px;color:var(--text2);line-height:1.6;">Excelente atención del personal y las instalaciones muy buenas, los baños impecables, muy recomendable para ir.</p>
-</div>
-<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.25rem;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-    <div style="width:38px;height:38px;border-radius:50%;background:#1a6fc4;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;">A</div>
-    <div style="font-size:14px;font-weight:600;">Angel Vargas</div>
-  </div>
-  <div style="color:#f59e0b;font-size:14px;margin-bottom:6px;">★★★★★</div>
-  <p style="font-size:13px;color:var(--text2);line-height:1.6;">Lindo lugar, excelentes canchas, muy buena atención, la gente que te encontrás muy agradable.</p>
-</div>
-<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.25rem;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-    <div style="width:38px;height:38px;border-radius:50%;background:#34a853;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;">D</div>
-    <div style="font-size:14px;font-weight:600;">Diego Moreno</div>
-  </div>
-  <div style="color:#f59e0b;font-size:14px;margin-bottom:6px;">★★★★★</div>
-  <p style="font-size:13px;color:var(--text2);line-height:1.6;">Muy lindo lugar, súper iluminado de noche, ambiente familiar y maravillosa atención en todo!!!</p>
-</div>
-  <a href="https://www.google.com/maps/place/Blue+Padel/@-31.6495552,-64.4307911,960m/data=!3m1!1e3!4m8!3m7!1s0x942d5730e460534d:0x2aab6a268e8e647a!8m2!3d-31.6495598!4d-64.4282162!9m1!1b1!16s%2Fg%2F11s613890g?entry=ttu&g_ep=EgoyMDI2MDQwNS4wIKXMDSoASAFQAw%3D%3D;">
+  <a href="https://maps.app.goo.gl/AZxGtHuBUDdSgRan9" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:13px 24px;color:var(--text);font-size:14px;font-weight:600;text-decoration:none;transition:background 0.2s;">
     ⭐ Dejanos tu reseña en Google
   </a>
 </section>
 
-<!-- CONTACTO -->
 <section class="section">
   <div class="section-label">Contacto</div>
   <div class="section-title">Encontranos</div>
