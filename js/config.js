@@ -35,7 +35,7 @@ const CONFIG = {
     { emoji: "🕐", titulo: "Abierto todos los días", descripcion: "Consultá horarios" }
   ],
 
-  mapsUrl: "https://www.google.com/maps/place/Blue+Padel/@-31.6495552,-64.4307911,960m/data=!3m2!1e3!4b1!4m6!3m5!1s0x942d5730e460534d:0x2aab6a268e8e647a!8m2!3d-31.6495598!4d-64.4282162",
+  mapsUrl: "https://maps.app.goo.gl/AZxGtHuBUDdSgRan9",
   instagram: "https://www.instagram.com/blue.padel/",
 
   mensajeConfirmacion: "Hola {nombre}! 🎉 Te confirmamos tu turno en Blue Padel.\n\n🎾 Cancha: {cancha}\n📅 Fecha: {fecha}\n⏰ Hora: {hora}\n\nTe esperamos!"
