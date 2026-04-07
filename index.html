@@ -135,7 +135,11 @@
 </section>
 
 <!-- CÓMO FUNCIONA -->
-
+<section class="section">
+  <div class="section-label">Instalaciones</div>
+  <div class="section-title">Nuestras <span style="color:var(--verde)">instalaciones</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="amenities-grid"></div>
+</section>
     <section class="section" style="background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
   <div class="section-label">Opiniones</div>
   <div class="section-title">Lo que dicen <span style="color:var(--verde)">nuestros clientes</span></div>
@@ -223,6 +227,16 @@
 document.getElementById('nav-instagram').href = CONFIG.instagram;
 document.getElementById('nav-whatsapp').href = `https://wa.me/${CONFIG.whatsapp}`;
   // Deportes
+  // Amenities
+const amenGrid = document.getElementById('amenities-grid');
+CONFIG.amenities.forEach(a => {
+  amenGrid.innerHTML += `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">${a.emoji}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.02em;margin-bottom:0.25rem;">${a.titulo}</div>
+      <div style="font-size:12px;color:var(--muted);">${a.descripcion}</div>
+    </div>`;
+});
   const grid = document.getElementById('sports-grid');
   CONFIG.deportes.forEach(d => {
     grid.innerHTML += `

@@ -39,7 +39,14 @@ const CONFIG = {
     "14:00","15:00","16:00","17:00","18:00","19:00",
     "20:00","21:00","22:00","23:00"
   ],
-
+amenities: [
+    { emoji: "🎾", titulo: "Canchas de Pádel", descripcion: "Blindex y césped sintético" },
+    { emoji: "⚽", titulo: "Canchas de Fútbol", descripcion: "Césped sintético de última generación" },
+    { emoji: "🅿️", titulo: "Estacionamiento", descripcion: "Amplio y seguro" },
+    { emoji: "💡", titulo: "Iluminación", descripcion: "LED profesional" },
+    { emoji: "🍻", titulo: "Tercer Tiempo", descripcion: "Espacios para quedarse después del partido" },
+    { emoji: "🕐", titulo: "Abierto todos los días", descripcion: "De 08:00 a 01:00 am" }
+  ],
   mapsUrl: "https://maps.app.goo.gl/wzFxwqLCJkePP8dd9",
 instagram: "https://www.instagram.com/luna.asua.centrosport/",
   mensajeConfirmacion: "Hola {nombre}! 🎉 Te confirmamos tu turno en Luna Asua Centro Sport.\n\n Deporte: {deporte}\n Cancha: {cancha}\n Fecha: {fecha}\n Hora: {hora}\n\nTe esperamos!"
