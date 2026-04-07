@@ -63,6 +63,13 @@
     .stat-card-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-top:2px; }
 
     .empty { text-align:center; padding:3rem; color:var(--muted); font-size:14px; }
+    .btn-tab { padding:6px 14px; border-radius:6px; font-size:12px; font-weight:500; cursor:pointer; color:var(--muted); border:none; background:none; transition:all .15s; }
+.btn-tab.active { background:var(--bg3); color:var(--text); }
+.stats-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.stats-bar-label { font-size:13px; color:var(--muted); width:90px; flex-shrink:0; }
+.stats-bar-track { flex:1; height:8px; background:var(--bg3); border-radius:4px; overflow:hidden; }
+.stats-bar-fill { height:100%; border-radius:4px; transition:width .4s; }
+.stats-bar-val { font-size:13px; font-weight:500; width:28px; text-align:right; flex-shrink:0; }
   </style>
 </head>
 <body>
@@ -91,7 +98,10 @@
 <div id="admin-screen" style="display:none">
   <nav class="nav">
     <div class="nav-brand" id="admin-brand">ADMIN</div>
-    <button class="btn btn-ghost" style="font-size:13px" id="btn-logout">Salir</button>
+   <div style="display:flex;gap:8px;">
+  <button class="btn btn-ghost" style="font-size:13px" id="btn-stats">Estadísticas</button>
+  <button class="btn btn-ghost" style="font-size:13px" id="btn-logout">Salir</button>
+</div>
   </nav>
 
   <div class="admin-wrap">
@@ -139,7 +149,39 @@
     </div>
   </div>
 </div>
+<!-- PANTALLA ESTADÍSTICAS -->
+<div id="stats-screen" style="display:none">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div class="admin-title">Estadísticas</div>
+      <button class="btn btn-ghost" style="font-size:13px" onclick="cerrarStats()">← Volver</button>
+    </div>
 
+    <div style="display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;width:fit-content;margin-bottom:1.5rem;">
+      <button class="btn-tab active" onclick="setStatsPeriodo('semana', this)">Esta semana</button>
+      <button class="btn-tab" onclick="setStatsPeriodo('mes', this)">Este mes</button>
+      <button class="btn-tab" onclick="setStatsPeriodo('total', this)">Total</button>
+    </div>
+
+    <div class="stats-top" id="stats-cards"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div class="card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:1rem;">Por deporte</div>
+        <div id="stats-deportes"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:1rem;">Por cancha</div>
+        <div id="stats-canchas"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:1rem;">Horarios más pedidos</div>
+      <div id="stats-horarios"></div>
+    </div>
+  </div>
+</div>
 <!-- MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
@@ -380,7 +422,91 @@ setTimeout(() => div.remove(), 10000);
   document.getElementById('modal').onclick = function(e) {
     if (e.target === this) cerrarModal();
   };
+// Estadísticas
+document.getElementById('btn-stats').onclick = () => {
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('stats-screen').style.display = 'block';
+  cargarStats('semana');
+};
 
+function cerrarStats() {
+  document.getElementById('stats-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+}
+
+function setStatsPeriodo(periodo, el) {
+  document.querySelectorAll('.btn-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  cargarStats(periodo);
+}
+
+async function cargarStats(periodo) {
+  let query = db.from('reservas').select('*').neq('estado', 'cancelada');
+
+  const hoy = new Date();
+  if (periodo === 'semana') {
+    const lunes = new Date(hoy);
+    lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
+    query = query.gte('fecha', lunes.toISOString().split('T')[0]);
+  } else if (periodo === 'mes') {
+    const primeroDeMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    query = query.gte('fecha', primeroDeMes.toISOString().split('T')[0]);
+  }
+
+  const { data } = await query;
+  if (!data) return;
+
+  const total = data.length;
+  const confirmadas = data.filter(r => r.estado === 'confirmada').length;
+  const pendientes = data.filter(r => r.estado === 'pendiente').length;
+  const senas = confirmadas * CONFIG.montoSena;
+
+  // Cards
+  document.getElementById('stats-cards').innerHTML = `
+    <div class="stat-card"><div class="stat-card-num">${total}</div><div class="stat-card-lbl">Reservas</div></div>
+    <div class="stat-card"><div class="stat-card-num">${confirmadas}</div><div class="stat-card-lbl">Confirmadas</div></div>
+    <div class="stat-card"><div class="stat-card-num">${pendientes}</div><div class="stat-card-lbl">Pendientes</div></div>
+    <div class="stat-card"><div class="stat-card-num">$${senas.toLocaleString('es-AR')}</div><div class="stat-card-lbl">Señas cobradas</div></div>
+  `;
+
+  // Por deporte
+  const porDeporte = {};
+  CONFIG.deportes.forEach(d => porDeporte[d.id] = 0);
+  data.forEach(r => { if (porDeporte[r.deporte] !== undefined) porDeporte[r.deporte]++; });
+  const maxDep = Math.max(...Object.values(porDeporte), 1);
+  const coloresDep = ['#378ADD', '#E24B4A', '#639922', '#BA7517'];
+  document.getElementById('stats-deportes').innerHTML = CONFIG.deportes.map((d, i) => `
+    <div class="stats-bar-row">
+      <div class="stats-bar-label">${d.nombre}</div>
+      <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${Math.round(porDeporte[d.id]/maxDep*100)}%;background:${coloresDep[i]};"></div></div>
+      <div class="stats-bar-val">${porDeporte[d.id]}</div>
+    </div>`).join('');
+
+  // Por cancha
+  const porCancha = {};
+  data.forEach(r => { if (r.cancha) porCancha[r.cancha + ' (' + r.deporte + ')'] = (porCancha[r.cancha + ' (' + r.deporte + ')'] || 0) + 1; });
+  const maxCancha = Math.max(...Object.values(porCancha), 1);
+  document.getElementById('stats-canchas').innerHTML = Object.entries(porCancha)
+    .sort((a,b) => b[1]-a[1])
+    .map(([k,v]) => `
+      <div class="stats-bar-row">
+        <div class="stats-bar-label">${k}</div>
+        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${Math.round(v/maxCancha*100)}%;background:var(--verde);"></div></div>
+        <div class="stats-bar-val">${v}</div>
+      </div>`).join('') || '<p style="font-size:13px;color:var(--muted)">Sin datos</p>';
+
+  // Horarios
+  const porHorario = {};
+  data.forEach(r => { const h = r.hora.slice(0,5); porHorario[h] = (porHorario[h] || 0) + 1; });
+  const topHorarios = Object.entries(porHorario).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const maxHor = Math.max(...topHorarios.map(h => h[1]), 1);
+  document.getElementById('stats-horarios').innerHTML = topHorarios.map(([h,v]) => `
+    <div class="stats-bar-row">
+      <div class="stats-bar-label">${h}</div>
+      <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${Math.round(v/maxHor*100)}%;background:#1D9E75;"></div></div>
+      <div class="stats-bar-val">${v}</div>
+    </div>`).join('') || '<p style="font-size:13px;color:var(--muted)">Sin datos</p>';
+}
   // Toast
   function toast(msg, type='ok') {
     const el = document.getElementById('toast');
