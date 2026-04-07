@@ -41,6 +41,6 @@ const CONFIG = {
   ],
 
   mapsUrl: "https://maps.app.goo.gl/wzFxwqLCJkePP8dd9",
-
+instagram: "https://www.instagram.com/luna.asua.centrosport/",
   mensajeConfirmacion: "Hola {nombre}! 🎉 Te confirmamos tu turno en Luna Asua Centro Sport.\n\n Deporte: {deporte}\n Cancha: {cancha}\n Fecha: {fecha}\n Hora: {hora}\n\nTe esperamos!"
 };
