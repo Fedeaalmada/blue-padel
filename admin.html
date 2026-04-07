@@ -98,7 +98,9 @@
 <div id="admin-screen" style="display:none">
   <nav class="nav">
     <div class="nav-brand" id="admin-brand">ADMIN</div>
-   <div style="display:flex;gap:8px;">
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+  <button class="btn btn-ghost" style="font-size:13px" id="btn-turnos-fijos">Turnos fijos</button>
+  <button class="btn btn-ghost" style="font-size:13px" id="btn-bloqueos">Bloquear canchas</button>
   <button class="btn btn-ghost" style="font-size:13px" id="btn-stats">Estadísticas</button>
   <button class="btn btn-ghost" style="font-size:13px" id="btn-logout">Salir</button>
 </div>
@@ -147,6 +149,87 @@
       </table>
       <div id="tabla-empty" class="empty" style="display:none">No hay reservas para mostrar</div>
     </div>
+  </div>
+</div>
+<!-- PANTALLA TURNOS FIJOS -->
+<div id="turnos-fijos-screen" style="display:none">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div class="admin-title">Turnos fijos</div>
+      <button class="btn btn-ghost" style="font-size:13px" onclick="cerrarPantalla('turnos-fijos-screen')">← Volver</button>
+    </div>
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:14px;font-weight:600;margin-bottom:1rem">Agregar turno fijo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div class="field"><label>Nombre del cliente</label><input type="text" id="tf-nombre" placeholder="Juan Pérez"/></div>
+        <div class="field"><label>WhatsApp</label><input type="tel" id="tf-telefono" placeholder="3547 123456"/></div>
+        <div class="field"><label>Deporte</label><select id="tf-deporte"></select></div>
+        <div class="field"><label>Cancha</label><select id="tf-cancha"></select></div>
+        <div class="field"><label>Día de la semana</label>
+          <select id="tf-dia">
+            <option value="1">Lunes</option><option value="2">Martes</option>
+            <option value="3">Miércoles</option><option value="4">Jueves</option>
+            <option value="5">Viernes</option><option value="6">Sábado</option>
+            <option value="0">Domingo</option>
+          </select>
+        </div>
+        <div class="field"><label>Horario</label><select id="tf-hora"></select></div>
+        <div class="field"><label>Duración</label>
+          <select id="tf-duracion">
+            <option value="1">1 mes</option><option value="2">2 meses</option>
+            <option value="3">3 meses</option><option value="6">6 meses</option>
+            <option value="12">1 año</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" id="btn-guardar-tf">Guardar turno fijo</button>
+    </div>
+
+    <div style="font-size:14px;font-weight:600;margin-bottom:1rem">Turnos fijos activos</div>
+    <div id="tf-lista"></div>
+  </div>
+</div>
+
+<!-- PANTALLA BLOQUEOS -->
+<div id="bloqueos-screen" style="display:none">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div class="admin-title">Bloquear canchas</div>
+      <button class="btn btn-ghost" style="font-size:13px" onclick="cerrarPantalla('bloqueos-screen')">← Volver</button>
+    </div>
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="font-size:14px;font-weight:600;margin-bottom:1rem">Nuevo bloqueo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div class="field"><label>Cancha</label>
+          <select id="bl-cancha">
+            <option value="todas">Todas las canchas</option>
+          </select>
+        </div>
+        <div class="field"><label>Motivo</label>
+          <select id="bl-motivo">
+            <option>Mantenimiento</option><option>Evento especial</option>
+            <option>Reservado</option><option>Otro</option>
+          </select>
+        </div>
+        <div class="field"><label>Fecha desde</label><input type="date" id="bl-fecha-inicio"/></div>
+        <div class="field"><label>Fecha hasta</label><input type="date" id="bl-fecha-fin"/></div>
+        <div class="field"><label>Hora desde (opcional)</label>
+          <select id="bl-hora-inicio"><option value="">Todo el día</option></select>
+        </div>
+        <div class="field"><label>Hora hasta (opcional)</label>
+          <select id="bl-hora-fin"><option value="">Todo el día</option></select>
+        </div>
+        <div class="field" style="grid-column:1/-1"><label>Nota interna (opcional)</label>
+          <input type="text" id="bl-nota" placeholder="Ej: Torneo de pádel"/>
+        </div>
+      </div>
+      <button class="btn btn-danger" style="width:100%" id="btn-guardar-bl">Bloquear horarios</button>
+    </div>
+
+    <div style="font-size:14px;font-weight:600;margin-bottom:1rem">Bloqueos activos</div>
+    <div id="bl-lista"></div>
   </div>
 </div>
 <!-- PANTALLA ESTADÍSTICAS -->
@@ -422,6 +505,224 @@ setTimeout(() => div.remove(), 10000);
   document.getElementById('modal').onclick = function(e) {
     if (e.target === this) cerrarModal();
   };
+ 
+
+// Pantallas
+function cerrarPantalla(id) {
+  document.getElementById(id).style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+}
+
+function abrirPantalla(id) {
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById(id).style.display = 'block';
+}
+
+// Turnos fijos
+document.getElementById('btn-turnos-fijos').onclick = () => {
+  abrirPantalla('turnos-fijos-screen');
+
+  // Llenar selects
+  const selDep = document.getElementById('tf-deporte');
+  selDep.innerHTML = '';
+  CONFIG.deportes.forEach(d => {
+    const op = document.createElement('option');
+    op.value = d.id; op.textContent = d.nombre;
+    selDep.appendChild(op);
+  });
+
+  const actualizarCanchas = () => {
+    const dep = CONFIG.deportes.find(d => d.id === selDep.value);
+    const selCancha = document.getElementById('tf-cancha');
+    selCancha.innerHTML = '';
+    if (dep) dep.canchas.forEach(c => {
+      const op = document.createElement('option');
+      op.value = c; op.textContent = c;
+      selCancha.appendChild(op);
+    });
+  };
+  selDep.onchange = actualizarCanchas;
+  actualizarCanchas();
+
+  const selHora = document.getElementById('tf-hora');
+  selHora.innerHTML = '';
+  CONFIG.horarios.forEach(h => {
+    const op = document.createElement('option');
+    op.value = h; op.textContent = h;
+    selHora.appendChild(op);
+  });
+
+  cargarTurnosFijos();
+};
+
+document.getElementById('btn-guardar-tf').onclick = async () => {
+  const nombre = document.getElementById('tf-nombre').value.trim();
+  const telefono = document.getElementById('tf-telefono').value.trim();
+  const deporte = document.getElementById('tf-deporte').value;
+  const cancha = document.getElementById('tf-cancha').value;
+  const dia = parseInt(document.getElementById('tf-dia').value);
+  const hora = document.getElementById('tf-hora').value;
+  const meses = parseInt(document.getElementById('tf-duracion').value);
+
+  if (!nombre || !telefono) { toast('Completá nombre y teléfono', 'error'); return; }
+
+  const btn = document.getElementById('btn-guardar-tf');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  const hoy = new Date();
+  const fechaFin = new Date(hoy);
+  fechaFin.setMonth(fechaFin.getMonth() + meses);
+
+  // Guardar turno fijo
+  const { error: tfErr } = await db.from('turnos_fijos').insert({
+    nombre, telefono, deporte, cancha,
+    dia_semana: dia, hora,
+    fecha_inicio: hoy.toISOString().split('T')[0],
+    fecha_fin: fechaFin.toISOString().split('T')[0]
+  });
+
+  if (tfErr) { toast('Error: ' + tfErr.message, 'error'); btn.disabled = false; btn.textContent = 'Guardar turno fijo'; return; }
+
+  // Crear reservas automáticamente
+  const reservas = [];
+  const cursor = new Date(hoy);
+  while (cursor <= fechaFin) {
+    if (cursor.getDay() === dia) {
+      reservas.push({
+        nombre, telefono, deporte, cancha,
+        fecha: cursor.toISOString().split('T')[0],
+        hora, estado: 'confirmada'
+      });
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  if (reservas.length > 0) {
+    const { error: rErr } = await db.from('reservas').insert(reservas);
+    if (rErr) { toast('Error creando reservas: ' + rErr.message, 'error'); btn.disabled = false; btn.textContent = 'Guardar turno fijo'; return; }
+  }
+
+  toast(`Turno fijo guardado — ${reservas.length} reservas creadas`, 'ok');
+  btn.disabled = false; btn.textContent = 'Guardar turno fijo';
+  document.getElementById('tf-nombre').value = '';
+  document.getElementById('tf-telefono').value = '';
+  cargarTurnosFijos();
+};
+
+async function cargarTurnosFijos() {
+  const { data } = await db.from('turnos_fijos').select('*').eq('activo', true).order('created_at', { ascending: false });
+  const lista = document.getElementById('tf-lista');
+  if (!data || data.length === 0) { lista.innerHTML = '<p style="color:var(--muted);font-size:13px;">No hay turnos fijos activos</p>'; return; }
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  lista.innerHTML = data.map(tf => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+      <span style="font-size:16px;">📌</span>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">${tf.nombre}</div>
+        <div style="font-size:12px;color:var(--muted);">Todos los ${dias[tf.dia_semana]} · ${tf.hora.slice(0,5)} · ${tf.cancha} · hasta ${tf.fecha_fin}</div>
+      </div>
+      <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;" onclick="cancelarTurnoFijo('${tf.id}')">Cancelar turno fijo</button>
+    </div>`).join('');
+}
+
+async function cancelarTurnoFijo(id) {
+  if (!confirm('¿Cancelar este turno fijo? Se eliminarán todas las reservas futuras.')) return;
+  const { data: tf } = await db.from('turnos_fijos').select('*').eq('id', id).single();
+  await db.from('turnos_fijos').update({ activo: false }).eq('id', id);
+  const hoy = new Date().toISOString().split('T')[0];
+  await db.from('reservas').delete()
+    .eq('nombre', tf.nombre).eq('deporte', tf.deporte)
+    .eq('cancha', tf.cancha).eq('hora', tf.hora)
+    .eq('estado', 'confirmada').gte('fecha', hoy);
+  toast('Turno fijo cancelado', 'ok');
+  cargarTurnosFijos();
+}
+
+// Bloqueos
+document.getElementById('btn-bloqueos').onclick = () => {
+  abrirPantalla('bloqueos-screen');
+
+  const selCancha = document.getElementById('bl-cancha');
+  selCancha.innerHTML = '<option value="todas">Todas las canchas</option>';
+  CONFIG.deportes.forEach(d => d.canchas.forEach(c => {
+    const op = document.createElement('option');
+    op.value = `${d.id}|${c}`; op.textContent = `${d.nombre} — ${c}`;
+    selCancha.appendChild(op);
+  }));
+
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('bl-fecha-inicio').min = hoy;
+  document.getElementById('bl-fecha-inicio').value = hoy;
+  document.getElementById('bl-fecha-fin').min = hoy;
+  document.getElementById('bl-fecha-fin').value = hoy;
+
+  ['bl-hora-inicio','bl-hora-fin'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">Todo el día</option>';
+    CONFIG.horarios.forEach(h => {
+      const op = document.createElement('option');
+      op.value = h; op.textContent = h;
+      sel.appendChild(op);
+    });
+  });
+
+  cargarBloqueos();
+};
+
+document.getElementById('btn-guardar-bl').onclick = async () => {
+  const canchaVal = document.getElementById('bl-cancha').value;
+  const motivo = document.getElementById('bl-motivo').value;
+  const fechaInicio = document.getElementById('bl-fecha-inicio').value;
+  const fechaFin = document.getElementById('bl-fecha-fin').value;
+  const horaInicio = document.getElementById('bl-hora-inicio').value;
+  const horaFin = document.getElementById('bl-hora-fin').value;
+  const nota = document.getElementById('bl-nota').value;
+
+  if (!fechaInicio || !fechaFin) { toast('Completá las fechas', 'error'); return; }
+
+  let deporte = null, cancha = null;
+  if (canchaVal !== 'todas') { [deporte, cancha] = canchaVal.split('|'); }
+
+  const btn = document.getElementById('btn-guardar-bl');
+  btn.disabled = true; btn.textContent = 'Bloqueando...';
+
+  const { error } = await db.from('bloqueos').insert({
+    deporte, cancha, motivo,
+    fecha_inicio: fechaInicio, fecha_fin: fechaFin,
+    hora_inicio: horaInicio || null, hora_fin: horaFin || null,
+    nota
+  });
+
+  if (error) { toast('Error: ' + error.message, 'error'); btn.disabled = false; btn.textContent = 'Bloquear horarios'; return; }
+
+  toast('Bloqueo guardado', 'ok');
+  btn.disabled = false; btn.textContent = 'Bloquear horarios';
+  document.getElementById('bl-nota').value = '';
+  cargarBloqueos();
+};
+
+async function cargarBloqueos() {
+  const hoy = new Date().toISOString().split('T')[0];
+  const { data } = await db.from('bloqueos').select('*').gte('fecha_fin', hoy).order('fecha_inicio', { ascending: true });
+  const lista = document.getElementById('bl-lista');
+  if (!data || data.length === 0) { lista.innerHTML = '<p style="color:var(--muted);font-size:13px;">No hay bloqueos activos</p>'; return; }
+  lista.innerHTML = data.map(bl => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+      <span style="font-size:16px;">🔒</span>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">${bl.cancha ? bl.deporte + ' — ' + bl.cancha : 'Todas las canchas'}</div>
+        <div style="font-size:12px;color:var(--muted);">${bl.motivo} · ${bl.fecha_inicio} — ${bl.fecha_fin} ${bl.hora_inicio ? '· ' + bl.hora_inicio.slice(0,5) + ' — ' + (bl.hora_fin ? bl.hora_fin.slice(0,5) : '') : '· Todo el día'} ${bl.nota ? '· ' + bl.nota : ''}</div>
+      </div>
+      <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;" onclick="eliminarBloqueo('${bl.id}')">Desbloquear</button>
+    </div>`).join('');
+}
+
+async function eliminarBloqueo(id) {
+  if (!confirm('¿Desbloquear estos horarios?')) return;
+  await db.from('bloqueos').delete().eq('id', id);
+  toast('Bloqueo eliminado', 'ok');
+  cargarBloqueos();
+}
 // Estadísticas
 document.getElementById('btn-stats').onclick = () => {
   document.getElementById('admin-screen').style.display = 'none';

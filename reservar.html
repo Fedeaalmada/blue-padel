@@ -213,23 +213,49 @@
     await renderHorarios();
   };
  
-  async function renderHorarios() {
+ async function renderHorarios() {
     if (!selFecha || !selDeporte || !selCancha) return;
     const grid = document.getElementById('horarios-grid');
     grid.innerHTML = '<p style="color:var(--muted);font-size:13px;">Cargando...</p>';
-    const { data } = await db.from('reservas')
+
+    // Reservas ocupadas
+    const { data: reservas } = await db.from('reservas')
       .select('hora')
       .eq('deporte', selDeporte.id)
       .eq('cancha', selCancha)
       .eq('fecha', selFecha)
       .neq('estado', 'cancelada');
-    const ocupados = (data || []).map(r => r.hora.slice(0,5));
+    const ocupados = (reservas || []).map(r => r.hora.slice(0,5));
+
+    // Bloqueos activos para esa fecha y cancha
+    const { data: bloqueos } = await db.from('bloqueos')
+      .select('*')
+      .lte('fecha_inicio', selFecha)
+      .gte('fecha_fin', selFecha);
+
+    const bloqueados = new Set();
+    (bloqueos || []).forEach(bl => {
+      const afecta = !bl.cancha || (bl.deporte === selDeporte.id && bl.cancha === selCancha);
+      if (afecta) {
+        if (!bl.hora_inicio) {
+          CONFIG.horarios.forEach(h => bloqueados.add(h));
+        } else {
+          CONFIG.horarios.forEach(h => {
+            if (h >= bl.hora_inicio.slice(0,5) && (!bl.hora_fin || h < bl.hora_fin.slice(0,5))) {
+              bloqueados.add(h);
+            }
+          });
+        }
+      }
+    });
+
     grid.innerHTML = '';
     CONFIG.horarios.forEach(h => {
       const btn = document.createElement('button');
-      btn.className = 'horario-btn' + (ocupados.includes(h) ? ' ocupado' : '');
+      const estaOcupado = ocupados.includes(h) || bloqueados.has(h);
+      btn.className = 'horario-btn' + (estaOcupado ? ' ocupado' : '');
       btn.textContent = h;
-      if (!ocupados.includes(h)) {
+      if (!estaOcupado) {
         btn.onclick = () => {
           document.querySelectorAll('.horario-btn').forEach(x => x.classList.remove('selected'));
           btn.classList.add('selected');
