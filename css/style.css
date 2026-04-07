@@ -3,8 +3,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --verde: #a3e635;
-  --verde-dark: #84cc16;
+ --verde: #1a6fc4;
+--verde-dark: #155aa0;
   --bg: #0a0a0a;
   --bg2: #111111;
   --bg3: #1a1a1a;
